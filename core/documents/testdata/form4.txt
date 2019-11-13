@@ -1,0 +1,156 @@
+<SEC-DOCUMENT>0001192482-19-000071.txt : 20190211
+<SEC-HEADER>0001192482-19-000071.hdr.sgml : 20190211
+<ACCEPTANCE-DATETIME>20190211165950
+ACCESSION NUMBER:		0001192482-19-000071
+CONFORMED SUBMISSION TYPE:	4
+PUBLIC DOCUMENT COUNT:		1
+CONFORMED PERIOD OF REPORT:	20190208
+FILED AS OF DATE:		20190211
+DATE AS OF CHANGE:		20190211
+
+REPORTING-OWNER:	
+
+	OWNER DATA:	
+		COMPANY CONFORMED NAME:			Brannelly Paul
+		CENTRAL INDEX KEY:			0001394936
+
+	FILING VALUES:
+		FORM TYPE:		4
+		SEC ACT:		1934 Act
+		SEC FILE NUMBER:	001-37372
+		FILM NUMBER:		19586284
+
+	MAIL ADDRESS:	
+		STREET 1:		C/O KARYOPHARM THERAPEUTICS INC.
+		STREET 2:		2 MERCER ROAD
+		CITY:			NATICK
+		STATE:			MA
+		ZIP:			01760
+
+ISSUER:		
+
+	COMPANY DATA:	
+		COMPANY CONFORMED NAME:			COLLEGIUM PHARMACEUTICAL, INC
+		CENTRAL INDEX KEY:			0001267565
+		STANDARD INDUSTRIAL CLASSIFICATION:	PHARMACEUTICAL PREPARATIONS [2834]
+		IRS NUMBER:				000000000
+		STATE OF INCORPORATION:			VA
+		FISCAL YEAR END:			1231
+
+	BUSINESS ADDRESS:	
+		STREET 1:		100 TECHNOLOGY CENTER DRIVE
+		CITY:			STOUGHTON
+		STATE:			MA
+		ZIP:			02072
+		BUSINESS PHONE:		781-713-3699
+
+	MAIL ADDRESS:	
+		STREET 1:		100 TECHNOLOGY CENTER DRIVE
+		CITY:			STOUGHTON
+		STATE:			MA
+		ZIP:			02072
+
+	FORMER COMPANY:	
+		FORMER CONFORMED NAME:	COLLEGIUM PHARMACEUTICAL INC
+		DATE OF NAME CHANGE:	20031020
+</SEC-HEADER>
+<DOCUMENT>
+<TYPE>4
+<SEQUENCE>1
+<FILENAME>edgar.xml
+<DESCRIPTION>PRIMARY DOCUMENT
+<TEXT>
+<XML>
+<?xml version="1.0"?>
+<ownershipDocument>
+
+    <schemaVersion>X0306</schemaVersion>
+
+    <documentType>4</documentType>
+
+    <periodOfReport>2019-02-08</periodOfReport>
+
+    <issuer>
+        <issuerCik>0001267565</issuerCik>
+        <issuerName>COLLEGIUM PHARMACEUTICAL, INC</issuerName>
+        <issuerTradingSymbol>COLL</issuerTradingSymbol>
+    </issuer>
+
+    <reportingOwner>
+        <reportingOwnerId>
+            <rptOwnerCik>0001394936</rptOwnerCik>
+            <rptOwnerName>Brannelly Paul</rptOwnerName>
+        </reportingOwnerId>
+        <reportingOwnerAddress>
+            <rptOwnerStreet1>C/O COLLEGIUM PHARMACEUTICAL, INC.</rptOwnerStreet1>
+            <rptOwnerStreet2>100 TECHNOLOGY CENTER DRIVE</rptOwnerStreet2>
+            <rptOwnerCity>STOUGHTON</rptOwnerCity>
+            <rptOwnerState>MA</rptOwnerState>
+            <rptOwnerZipCode>02072</rptOwnerZipCode>
+            <rptOwnerStateDescription></rptOwnerStateDescription>
+        </reportingOwnerAddress>
+        <reportingOwnerRelationship>
+            <isDirector>0</isDirector>
+            <isOfficer>1</isOfficer>
+            <isTenPercentOwner>0</isTenPercentOwner>
+            <isOther>0</isOther>
+            <officerTitle>Executive Vice President &amp; CFO</officerTitle>
+        </reportingOwnerRelationship>
+    </reportingOwner>
+
+    <nonDerivativeTable>
+        <nonDerivativeTransaction>
+            <securityTitle>
+                <value>Common Stock</value>
+            </securityTitle>
+            <transactionDate>
+                <value>2019-02-08</value>
+            </transactionDate>
+            <transactionCoding>
+                <transactionFormType>4</transactionFormType>
+                <transactionCode>F</transactionCode>
+                <equitySwapInvolved>0</equitySwapInvolved>
+            </transactionCoding>
+            <transactionAmounts>
+                <transactionShares>
+                    <value>2693</value>
+                    <footnoteId id="F1"/>
+                </transactionShares>
+                <transactionPricePerShare>
+                    <value>14.39</value>
+                </transactionPricePerShare>
+                <transactionAcquiredDisposedCode>
+                    <value>D</value>
+                </transactionAcquiredDisposedCode>
+            </transactionAmounts>
+            <postTransactionAmounts>
+                <sharesOwnedFollowingTransaction>
+                    <value>152288</value>
+                </sharesOwnedFollowingTransaction>
+            </postTransactionAmounts>
+            <ownershipNature>
+                <directOrIndirectOwnership>
+                    <value>D</value>
+                </directOrIndirectOwnership>
+                <natureOfOwnership>
+                    <value></value>
+                </natureOfOwnership>
+            </ownershipNature>
+        </nonDerivativeTransaction>
+    </nonDerivativeTable>
+
+    <footnotes>
+        <footnote id="F1">Shares withheld by the Issuer to satisfy applicable withholding taxes upon vesting of restricted stock units.</footnote>
+    </footnotes>
+
+    <remarks></remarks>
+
+    <ownerSignature>
+        <signatureName>/s/ Paul Brannelly</signatureName>
+        <signatureDate>2019-02-11</signatureDate>
+    </ownerSignature>
+</ownershipDocument>
+</XML>
+</TEXT>
+</DOCUMENT>
+</SEC-DOCUMENT>

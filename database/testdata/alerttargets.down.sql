@@ -1,0 +1,2 @@
+DELETE FROM alerts;
+DELETE FROM users;
