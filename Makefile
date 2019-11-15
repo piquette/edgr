@@ -2,7 +2,7 @@
 all: test vet lint
 
 build:
-	go build ./...
+	go build -v -o bin/edgr ./cmd
 
 lint:
 	golint -set_exit_status ./...
@@ -20,3 +20,10 @@ coverage:
 
 clean:
 	find . -name \*.coverprofile -delete
+	rm -rf bin
+
+db:
+	docker run -p 5432:5432 -d postgres:9.6
+
+pack:
+	~/go/bin/go-bindata -ignore=\\.DS_Store  -o cmd/migrations.go migrations/...

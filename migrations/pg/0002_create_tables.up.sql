@@ -41,3 +41,17 @@ CREATE TABLE forms (
   form_desc TEXT NOT NULL,
   active BOOLEAN NOT NULL DEFAULT false
 );
+
+-- filers table: stores filers.
+CREATE TABLE filers (
+	id TEXT PRIMARY KEY DEFAULT generate_uid(8),
+
+  symbol TEXT,
+  cik TEXT NOT NULL,
+  name TEXT NOT NULL,
+  sic TEXT,
+  sic_desc TEXT
+);
+
+--ALTER TABLE filers ALTER COLUMN name DROP NOT NULL;
+ALTER TABLE filers ADD CONSTRAINT u_cik UNIQUE (cik);
