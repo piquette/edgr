@@ -2,15 +2,42 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/piquette/edgr/core/model"
+	"github.com/piquette/edgr/database"
+	log "github.com/sirupsen/logrus"
+	"github.com/urfave/cli"
 )
+
+func getCommand(c *cli.Context) error {
+	return nil
+}
+
+func executeAlpha(dao database.FilerDao) {
+	//
+	found, filers, err := dao.GetSet(conf.LetterStart)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if !found {
+		return
+	}
+
+	hitSymbol := false
+	fdao := contentdb.NewFilingDao()
+	for _, filer := range filers {
+		if conf.SymbolStart != "" && filer.Symbol != conf.SymbolStart && !hitSymbol {
+			continue
+		}
+		hitSymbol = true
+		backfillFilerWithCutoff(fdao, *filer, nil)
+	}
+}
 
 var alphabet = []string{"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"}
 
-func (e *Edgr) executeTime() {
+func executeTime(dao database.FilerDao) {
 
 	cutoffTime, err := time.Parse("2006-01-02", conf.StopDate)
 	if err != nil {
@@ -18,7 +45,7 @@ func (e *Edgr) executeTime() {
 	}
 
 	for _, letter := range alphabet {
-		found, filers, err := e.FilerDao.GetSet(letter)
+		found, filers, err := dao.GetSet(letter)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -26,15 +53,15 @@ func (e *Edgr) executeTime() {
 			return
 		}
 
+		dao := contentdb.NewFilingDao()
 		for _, filer := range filers {
-
-			e.backfillFilerWithCutoff(*filer, &cutoffTime)
+			backfillFilerWithCutoff(dao, *filer, &cutoffTime)
 		}
 	}
 }
 
 // backfillFilerWithCutoff backfills a filer with a time cutoff.
-func (e *Edgr) backfillFilerWithCutoff(filer model.Filer, cutoffTime *time.Time) {
+func backfillFilerWithCutoff(dao database.FilingDao, filer model.Filer, cutoffTime *time.Time) {
 	dirPage, err := getPage("https://www.sec.gov/Archives/edgar/data/"+filer.CIK, 2)
 	if err != nil {
 		log.Println(err)
@@ -84,17 +111,17 @@ func (e *Edgr) backfillFilerWithCutoff(filer model.Filer, cutoffTime *time.Time)
 		// }
 		filing.Filing.AllSymbols = symbols
 
-		created, exists, err := e.FilingDao.Add(filing.Filing)
+		created, exists, err := dao.Add(filing.Filing)
 		if err != nil {
 			log.Println(err)
 			continue
 		}
 		if exists {
 			// get id.
-			_, fid, _ := e.FilingDao.Get(filing.Filing.Accession)
+			_, fid, _ := dao.Get(filing.Filing.Accession)
 			filing.Filing.ID = fid.ID
 
-			_, err = e.FilingDao.Update(filing.Filing)
+			_, err = dao.Update(filing.Filing)
 			if err != nil {
 				log.Println(err)
 				continue
@@ -104,7 +131,7 @@ func (e *Edgr) backfillFilerWithCutoff(filer model.Filer, cutoffTime *time.Time)
 			continue
 		}
 
-		err = e.FilingDao.AddDocuments(created, filing.Docs)
+		err = dao.AddDocuments(created, filing.Docs)
 		if err != nil {
 			log.Println(err)
 			continue

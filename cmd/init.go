@@ -9,12 +9,7 @@ import (
 )
 
 func initCommand(c *cli.Context) error {
-	conf.ContentPgAddr = c.GlobalString("pg-addr")
-	conf.ContentPgUser = c.GlobalString("pg-user")
-	conf.ContentPgPass = c.GlobalString("pg-pass")
-	conf.ContentPgDB = c.GlobalString("pg-db")
-
-	err := connectDB()
+	err := connectDB(c)
 	if err != nil {
 		log.Warn(err)
 		return nil

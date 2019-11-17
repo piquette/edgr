@@ -1,15 +1,15 @@
 package main
 
 import (
-	"encoding/csv"
-	"encoding/xml"
 	"fmt"
-	"log"
-	"net/http"
-	"time"
+	"math"
 
-	"github.com/piquette/edgr/core/model"
-	"golang.org/x/net/html/charset"
+	"github.com/schollz/progressbar/v2"
+	log "github.com/sirupsen/logrus"
+	"github.com/urfave/cli"
+
+	"github.com/piquette/edgr/core"
+	"github.com/piquette/edgr/database"
 )
 
 var (
@@ -18,155 +18,83 @@ var (
 	iexCompanyURL = "https://api.iextrading.com/1.0/stock/spy/company"
 )
 
-// RssFeed is the feed obj.
-type RssFeed struct {
-	Info CompanyInfo `xml:"company-info"`
-}
-
-// CompanyInfo internal to rssfeed obj.
-type CompanyInfo struct {
-	CIK     string `xml:"cik"`
-	SIC     string `xml:"assigned-sic,omitempty"`
-	SICDesc string `xml:"assigned-sic-desc,omitempty"`
-	Name    string `xml:"conformed-name"`
-}
-
-// GetFilers runs the period fetch job.
-func (s *Edgr) GetFilers() {
-	log.Println("executing job")
-	// Get symbols.
-	// TODO: tag any newly matched ciks with their symbols in filings table
-
-	companyTable, err := fetchCSV(iexSymbolsURL)
+func filersInitCommand(c *cli.Context) error {
+	// Connect to db.
+	err := connectDB(c)
 	if err != nil {
-		// handle with email.
-		log.Println(err)
-		return
-	}
-	if len(companyTable) == 0 {
-		// handle with email.
-		return
+		log.Warn(err)
+		return nil
 	}
 
+	// TODO: clean up this mess..
+	list := []core.Company{}
+	getAll := c.Bool("all")
+	sicGroup := c.String("sic")
+
+	if !getAll && sicGroup == "" {
+		// try single symbol.
+		singleSymbol := c.String("symbol")
+		if singleSymbol == "" {
+			log.Info("please specify a filer to fetch")
+			return nil
+		}
+		log.Info("retrieving single company")
+		list = append(list, core.Company{Symbol: singleSymbol})
+
+	} else {
+		// Get all.
+		log.Info("retrieving list of companies..")
+		log.Info("gathering filer information, this will take a long time..")
+		list, err := core.GetPublicCompanies()
+		if err != nil {
+			return err
+		}
+		if len(list) == 0 {
+			return fmt.Errorf("could not find companies")
+		}
+	}
+
+	err = storeFilers(list, contentdb.NewFilerDao(), sicGroup)
+	if err != nil {
+		log.Warn(err)
+		return nil
+	}
+	log.Info("finished")
+	return nil
+}
+
+func storeFilers(list []core.Company, dao database.FilerDao, sicGroup string) error {
 	// match symbols.
-	newCompanies := map[string]string{}
-	log.Println("got table, now matching symbols")
+	bar := progressbar.NewOptions(100, progressbar.OptionSetPredictTime(true))
+	totalSize := float64(len(list))
+	prog := 0
+	for i, c := range list {
 
-	for _, tRow := range companyTable {
-
-		// Symbol.
-		symbol := tRow[0]
-
-		// Find info+cik for that symbol.
-		log.Println(symbol)
-		info, cikErr := getCompanyInfo(symbol)
+		// Find info for that symbol.
+		filer, cikErr := core.GetFiler(c.Symbol)
 		if cikErr != nil {
 			// Handle.
-			//log.Println(cikErr)
 			continue
 		}
 
-		// Post to cache.
-		// exists, cacheErr := s.SymbolsCache.SetPair(info.CIK, symbol)
-		// if cacheErr != nil {
-		// 	// Handle.
-		// 	log.Println(cacheErr)
-		// 	continue
-		// }
-		// if exists {
-		// 	// Handle.
-		// 	//log.Printf("%s = %s already exists\n", info.CIK, symbol)
-		// 	continue
-		// }
-
-		// try to fetch company info..
-		// maybe later.. iex has a company url.
-
-		// Add to db.
-		filer := &model.Filer{
-			CIK:            info.CIK,
-			Symbol:         symbol,
-			SIC:            info.SIC,
-			SICDescription: info.SICDesc,
-			Name:           info.Name,
+		if sicGroup != "" {
+			if filer.SIC != sicGroup {
+				continue
+			}
 		}
-		_, dbErr := s.FilerDao.Put(filer)
+
+		_, dbErr := dao.Put(filer)
 		if dbErr != nil {
 			// Handle.
-			log.Println(dbErr)
+			log.Warn(dbErr)
 			continue
 		}
-
-		// Add to new companies.
-		newCompanies[symbol] = info.Name
+		val := int(math.Ceil((float64(i) / totalSize) * 100))
+		if val > prog {
+			bar.Add(val)
+			prog = val
+		}
 	}
-	printSuccess(newCompanies)
-}
-
-func bold(str string) string {
-	return "\033[1m" + str + "\033[0m"
-}
-
-func printSuccess(companies map[string]string) {
-	log.Println("Added the following companies:")
-	log.Println()
-
-	for sym, nme := range companies {
-		log.Println(" -", bold(sym+":"), " (-"+nme+")")
-	}
-
-	log.Println()
-	log.Println("Done.")
-	log.Println()
-}
-
-func getCompanyInfo(symbol string) (info CompanyInfo, err error) {
-	// get the cik for each symbol.
-	// tedious process...
-	url := fmt.Sprintf(secCompanyURL, symbol)
-
-	httpClient := http.Client{Timeout: 10 * time.Second}
-	resp, err := httpClient.Get(url)
-	if err != nil {
-		return
-	}
-	defer resp.Body.Close()
-
-	var feed RssFeed
-	decoder := xml.NewDecoder(resp.Body)
-	decoder.CharsetReader = charset.NewReaderLabel
-	err = decoder.Decode(&feed)
-	if err != nil {
-		return
-	}
-
-	if feed.Info.CIK == "" {
-		err = fmt.Errorf("no cik found in response data")
-		return
-	}
-	if feed.Info.Name == "" {
-		err = fmt.Errorf("no name found in response data")
-		return
-	}
-
-	return feed.Info, nil
-}
-
-func fetchCSV(url string) (table [][]string, err error) {
-
-	req, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		return
-	}
-
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return
-	}
-	defer resp.Body.Close()
-
-	r := csv.NewReader(resp.Body)
-	r.FieldsPerRecord = -1
-	table, err = r.ReadAll()
-	return
+	bar.Finish()
+	return nil
 }

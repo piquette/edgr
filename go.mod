@@ -7,6 +7,8 @@ require (
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/onsi/ginkgo v1.10.3 // indirect
 	github.com/onsi/gomega v1.7.1 // indirect
+	github.com/schollz/progressbar v1.0.0 // indirect
+	github.com/schollz/progressbar/v2 v2.14.0
 	github.com/sirupsen/logrus v1.4.2
 	github.com/stretchr/testify v1.4.0
 	github.com/tdewolff/minify v2.3.6+incompatible
