@@ -55,10 +55,32 @@ func (dao *FilerDaoImpl) Search(condition string) (found bool, filers []*model.F
 // GetSet attempts to retrieve a set of filers by symbol.
 func (dao *FilerDaoImpl) GetSet(term string) (found bool, filers []*model.Filer, err error) {
 	var results []Filer
-	term = term + "%"
 
 	err = dao.db.Model(&results).
-		Where("symbol ILIKE ?", term).
+		Where("symbol LIKE ?", term).
+		Order("symbol ASC").
+		Select()
+
+	if err != nil {
+		if err == pg.ErrNoRows {
+			return false, filers, nil
+		}
+		return false, filers, err
+	}
+
+	for _, result := range results {
+		filers = append(filers, result.export())
+	}
+
+	return true, filers, nil
+}
+
+// GetSetBySIC get filers by sic.
+func (dao *FilerDaoImpl) GetSetBySIC(term string) (found bool, filers []*model.Filer, err error) {
+	var results []Filer
+
+	err = dao.db.Model(&results).
+		Where("sic LIKE ?", term).
 		Order("symbol ASC").
 		Select()
 

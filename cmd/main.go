@@ -2,7 +2,6 @@ package main
 
 import (
 	"os"
-	"regexp"
 	"sort"
 
 	"github.com/piquette/edgr/database"
@@ -17,19 +16,9 @@ func init() {
 }
 
 var (
-	dirRegex = regexp.MustCompile(`<td><a href="(.*?)"><img`)
-	urlRegex = regexp.MustCompile(`.*<a href="(.*?)index.html"><img`)
 	// content database.
 	contentdb *database.Handle
 	connected bool
-	// global config.
-	conf = struct {
-		// Settings.
-		LetterStart string
-		SymbolStart string
-		FillMode    string
-		StopDate    string
-	}{}
 )
 
 func main() {
@@ -60,26 +49,7 @@ func main() {
 					Name:   "init",
 					Usage:  "Retrieves and stores any filers that can reasonably be matched to a publicly traded stock symbol",
 					Action: filersInitCommand,
-					Flags: []cli.Flag{
-						cli.BoolFlag{
-							Name:     "all",
-							Usage:    "Fetches and stores records for all possible filers",
-							EnvVar:   "FILER_ALL",
-							FilePath: "EDGRFILE",
-						},
-						cli.StringFlag{
-							Name:     "symbol",
-							Usage:    "Speficies a single symbol to fetch and store a filer record for",
-							EnvVar:   "FILER_SYMBOL",
-							FilePath: "EDGRFILE",
-						},
-						cli.StringFlag{
-							Name:     "sic",
-							Usage:    "Speficies an industry group to fetch and store filer records for",
-							EnvVar:   "FILER_SIC_GROUP",
-							FilePath: "EDGRFILE",
-						},
-					},
+					Flags:  buildFilersFlags(),
 				},
 			},
 		},

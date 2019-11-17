@@ -1,4 +1,4 @@
-package main
+package core
 
 import (
 	"fmt"
@@ -11,12 +11,6 @@ import (
 	"github.com/piquette/edgr/core/model"
 )
 
-// ArchivedFiling is cool.
-type ArchivedFiling struct {
-	Filing *model.Filing
-	Docs   []*model.Document
-}
-
 var (
 	txtURLRegex    = regexp.MustCompile(`(?s)<\s*td[^>]*>Complete submission text file<\s*/\s*td>.*<td[^>]*><a href="(.*?)">.*txt<\s*/\s*a><\s*/\s*td>`)
 	relcikRegex    = regexp.MustCompile(`(?s)<span class="companyName">.*?\((.*?)...<acronym.*?CIK=(.*?)&`)
@@ -24,13 +18,11 @@ var (
 	timeRegex      = regexp.MustCompile(`(?s)Accepted</div>.*?<div class="info">(.*?)</div>`)
 )
 
-func buildFiling(filer model.Filer, idxURL string) (filing ArchivedFiling, err error) {
+func buildFiling(cik, idxURL string) (filing SECFiling, err error) {
 
 	f := &model.Filing{
-		Filer:      filer.Name,
 		EdgarURL:   idxURL,
-		CIK:        filer.CIK,
-		Symbol:     filer.Symbol,
+		CIK:        cik,
 		AllCIKs:    []string{},
 		AllSymbols: []string{},
 	}
@@ -75,7 +67,7 @@ func buildFiling(filer model.Filer, idxURL string) (filing ArchivedFiling, err e
 
 	f.FormType = docs[0].DocType
 
-	return ArchivedFiling{Filing: f, Docs: docs}, nil
+	return SECFiling{Filing: f, Docs: docs}, nil
 }
 
 func getAccession(idxURL string) string {
