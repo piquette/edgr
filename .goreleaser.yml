@@ -1,12 +1,13 @@
 build:
-  binary: edgr
+  binary: bin/edgr
+  main: ./cmd
   goos:
     - windows
     - darwin
     - linux
   goarch:
     - amd64
-
+        
 brew:
   github:
     owner: piquette
